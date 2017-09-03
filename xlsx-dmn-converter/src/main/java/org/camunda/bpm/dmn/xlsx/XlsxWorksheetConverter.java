@@ -12,6 +12,8 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
+import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.camunda.bpm.dmn.xlsx.elements.IndexedCell;
@@ -32,6 +34,7 @@ import org.camunda.bpm.model.dmn.instance.Output;
 import org.camunda.bpm.model.dmn.instance.OutputEntry;
 import org.camunda.bpm.model.dmn.instance.Rule;
 import org.camunda.bpm.model.dmn.instance.Text;
+import org.xlsx4j.sml.Cell;
 
 /**
  * @author Thorben Lindhauer
@@ -66,36 +69,48 @@ public class XlsxWorksheetConverter {
 
     List<IndexedRow> rows = worksheetContext.getRows();
 
-    convertInputsOutputs(dmnModel, decisionTable, rows.get(0));
-    convertRules(dmnModel, decisionTable, rows.subList(1, rows.size()));
+    convertInputsOutputs(dmnModel, decisionTable, rows.get(0),rows.get(1),rows.get(2));
+    convertRules(dmnModel, decisionTable, rows.subList(3, rows.size()));
 
     return dmnModel;
   }
 
-  protected void convertInputsOutputs(DmnModelInstance dmnModel, DecisionTable decisionTable, IndexedRow header) {
+  protected void convertInputsOutputs(DmnModelInstance dmnModel, DecisionTable decisionTable, IndexedRow label, IndexedRow header, IndexedRow typeRef) {
 
     InputOutputColumns inputOutputColumns = ioDetectionStrategy.determineHeaderCells(header, worksheetContext);
-
+    List<IndexedCell> labels = label.getCells();
+    List<IndexedCell> typeRefs = typeRef.getCells();
+    int index =0;
+    // TODO: validar typs
+    
     // inputs
     for (IndexedCell inputCell : inputOutputColumns.getInputHeaderCells()) {
       Input input = generateElement(dmnModel, Input.class, worksheetContext.resolveCellValue(inputCell.getCell()));
+      input.setLabel(worksheetContext.resolveCellValue(labels.get(index).getCell()));
       decisionTable.addChildElement(input);
 
       InputExpression inputExpression = generateElement(dmnModel, InputExpression.class);
+      inputExpression.setTypeRef(worksheetContext.resolveCellValue(typeRefs.get(index).getCell()));
       Text text = generateText(dmnModel, worksheetContext.resolveCellValue(inputCell.getCell()));
       inputExpression.setText(text);
       input.setInputExpression(inputExpression);
 
       dmnConversionContext.getIndexedDmnColumns().addInput(inputCell, input);
+      index++;
     }
 
     // outputs
     for (IndexedCell outputCell : inputOutputColumns.getOutputHeaderCells()) {
       Output output = generateElement(dmnModel, Output.class, worksheetContext.resolveCellValue(outputCell.getCell()));
+      output.setLabel(worksheetContext.resolveCellValue(labels.get(index).getCell()));
       output.setName(worksheetContext.resolveCellValue(outputCell.getCell()));
       decisionTable.addChildElement(output);
+      
+    
 
+      output.setTypeRef(worksheetContext.resolveCellValue(typeRefs.get(index).getCell()));
       dmnConversionContext.getIndexedDmnColumns().addOutput(outputCell, output);
+      index++;
     }
 
   }

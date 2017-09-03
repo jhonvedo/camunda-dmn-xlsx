@@ -31,6 +31,14 @@ import org.camunda.bpm.model.dmn.DmnModelInstance;
 public class CommandLineConverter {
 
   public static void main(String[] args) {
+      String[] ag = new String[6];
+      ag[0] ="--inputs"; 
+      ag[1] ="A,B";
+      ag[2] ="--outputs";
+      ag[3] ="C";
+      ag[4] ="C:\\Users\\vedo\\Desktop\\testCamunda\\epa.xlsx";
+      ag[5] ="C:\\Users\\vedo\\Desktop\\testCamunda\\epa.dmn";
+     args = ag;
     if (args.length == 0) {
       StringBuilder sb = new StringBuilder();
       sb.append("Usage: java -jar ...jar [--inputs A,B,C,..] [--outputs D,E,F,...] path/to/file.xlsx path/to/outfile.dmn");
