@@ -12,8 +12,6 @@
  */
 package org.camunda.bpm.dmn.xlsx;
 
-import java.util.AbstractList;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.camunda.bpm.dmn.xlsx.elements.IndexedCell;
@@ -34,7 +32,6 @@ import org.camunda.bpm.model.dmn.instance.Output;
 import org.camunda.bpm.model.dmn.instance.OutputEntry;
 import org.camunda.bpm.model.dmn.instance.Rule;
 import org.camunda.bpm.model.dmn.instance.Text;
-import org.xlsx4j.sml.Cell;
 
 /**
  * @author Thorben Lindhauer
@@ -81,7 +78,7 @@ public class XlsxWorksheetConverter {
     List<IndexedCell> labels = label.getCells();
     List<IndexedCell> typeRefs = typeRef.getCells();
     int index =0;
-    // TODO: validar typs
+    
     
     // inputs
     for (IndexedCell inputCell : inputOutputColumns.getInputHeaderCells()) {

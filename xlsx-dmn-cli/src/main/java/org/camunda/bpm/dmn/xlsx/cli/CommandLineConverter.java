@@ -14,7 +14,9 @@ package org.camunda.bpm.dmn.xlsx.cli;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,14 +33,7 @@ import org.camunda.bpm.model.dmn.DmnModelInstance;
 public class CommandLineConverter {
 
   public static void main(String[] args) {
-      String[] ag = new String[6];
-      ag[0] ="--inputs"; 
-      ag[1] ="A,B";
-      ag[2] ="--outputs";
-      ag[3] ="C";
-      ag[4] ="C:\\Users\\vedo\\Desktop\\testCamunda\\epa.xlsx";
-      ag[5] ="C:\\Users\\vedo\\Desktop\\testCamunda\\epa.dmn";
-     args = ag;
+      
     if (args.length == 0) {
       StringBuilder sb = new StringBuilder();
       sb.append("Usage: java -jar ...jar [--inputs A,B,C,..] [--outputs D,E,F,...] path/to/file.xlsx path/to/outfile.dmn");
@@ -55,12 +50,12 @@ public class CommandLineConverter {
     for (int i = 0; i < args.length - 2; i++) {
       if ("--inputs".equals(args[i])) {
         inputs = new HashSet<String>();
-        inputs.addAll(Arrays.asList(args[i + 1].split(",")));
+        inputs.addAll(getHeaders(args[i + 1]));
       }
 
       if ("--outputs".equals(args[i])) {
         outputs = new HashSet<String>();
-        outputs.addAll(Arrays.asList(args[i + 1].split(",")));
+        outputs.addAll(getHeaders(args[i + 1]));
       }
     }
 
@@ -95,4 +90,18 @@ public class CommandLineConverter {
     }
 
   }
+
+    private static Collection<String> getHeaders(String arg) {
+       if(arg.contains("-") && arg.length()==3){
+           char[] args = arg.replace("-", "").toCharArray();
+           ArrayList<String> headers = new ArrayList<String>();
+           for (char i = args[0]; i <= args[1]; i++) {               
+               headers.add(String.valueOf(i));
+           }
+           return headers;          
+       }
+       else{
+           return Arrays.asList(arg.split(","));
+       }
+    }
 }
