@@ -35,7 +35,7 @@ public class XlsxConverter {
 
   protected InputOutputDetectionStrategy ioDetectionStrategy = new SimpleInputOutputDetectionStrategy();
 
-  public DmnModelInstance convert(InputStream inputStream) {
+  public DmnModelInstance convert(InputStream inputStream,boolean haveTypes) {
     SpreadsheetMLPackage spreadSheetPackage = null;
     try {
       spreadSheetPackage = (SpreadsheetMLPackage) SpreadsheetMLPackage.load(inputStream);
@@ -65,7 +65,7 @@ public class XlsxConverter {
       throw new RuntimeException("Could not determine worksheet", e);
     }
 
-    return new XlsxWorksheetConverter(worksheetContext, ioDetectionStrategy).convert();
+    return new XlsxWorksheetConverter(worksheetContext, ioDetectionStrategy,haveTypes).convert();
   }
 
   public InputOutputDetectionStrategy getIoDetectionStrategy() {

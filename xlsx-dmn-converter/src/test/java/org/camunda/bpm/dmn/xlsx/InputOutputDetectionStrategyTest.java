@@ -31,7 +31,7 @@ public class InputOutputDetectionStrategyTest {
     XlsxConverter converter = new XlsxConverter();
     converter.setIoDetectionStrategy(new StaticInputOutputDetectionStrategy(Collections.singleton("B"), Collections.singleton("D")));
     InputStream inputStream = TestHelper.getClassPathResource("test2.xlsx");
-    DmnModelInstance dmnModelInstance = converter.convert(inputStream);
+    DmnModelInstance dmnModelInstance = converter.convert(inputStream,false);
     Assert.assertNotNull(dmnModelInstance);
 
     DecisionTable table = TestHelper.assertAndGetSingleDecisionTable(dmnModelInstance);

@@ -35,6 +35,7 @@ public class XlsxDeployer implements Deployer {
 
   public static final String XLSX_RESOURCE_SUFFIX = "xlsx";
 
+  @Override
   public void deploy(DeploymentEntity deployment) {
     if (!deployment.isNew()) {
       // only generate dmn xml once when deploying for the first time
@@ -97,7 +98,7 @@ public class XlsxDeployer implements Deployer {
     if (metaData != null) {
       metaData.applyTo(converter);
     }
-    return converter.convert(inputStream);
+    return converter.convert(inputStream,false);
   }
 
   protected XlsxDeploymentMetaData loadMetaData(DeploymentEntity deployment, String metaDataResource) {

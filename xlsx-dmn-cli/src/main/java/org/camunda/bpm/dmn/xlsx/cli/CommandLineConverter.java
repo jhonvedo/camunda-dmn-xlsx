@@ -32,7 +32,9 @@ import org.camunda.bpm.model.dmn.DmnModelInstance;
  */
 public class CommandLineConverter {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) {      
+     
+    boolean haveTypes = false;
       
     if (args.length == 0) {
       StringBuilder sb = new StringBuilder();
@@ -52,6 +54,10 @@ public class CommandLineConverter {
         inputs = new HashSet<String>();
         inputs.addAll(getHeaders(args[i + 1]));
       }
+      if ("--have-types".equals(args[i])) {
+       haveTypes = (args[i + 1].trim().toUpperCase().equals("TRUE"));
+      }
+      
 
       if ("--outputs".equals(args[i])) {
         outputs = new HashSet<String>();
@@ -71,7 +77,7 @@ public class CommandLineConverter {
       try {
 
         fileInputStream = new FileInputStream(inputFile);
-        DmnModelInstance dmnModelInstance = converter.convert(fileInputStream);
+        DmnModelInstance dmnModelInstance = converter.convert(fileInputStream,haveTypes);
         fileOutputStream = new FileOutputStream(outputFile);
         Dmn.writeModelToStream(fileOutputStream, dmnModelInstance);
       }

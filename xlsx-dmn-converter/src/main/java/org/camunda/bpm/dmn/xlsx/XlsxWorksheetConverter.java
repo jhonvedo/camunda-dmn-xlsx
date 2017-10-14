@@ -42,12 +42,12 @@ public class XlsxWorksheetConverter {
   protected XlsxWorksheetContext worksheetContext;
   protected DmnConversionContext dmnConversionContext;
   protected InputOutputDetectionStrategy ioDetectionStrategy;
-
-  public XlsxWorksheetConverter(XlsxWorksheetContext worksheetContext, InputOutputDetectionStrategy ioDetectionStrategy) {
+  protected boolean haveTypes;
+  public XlsxWorksheetConverter(XlsxWorksheetContext worksheetContext, InputOutputDetectionStrategy ioDetectionStrategy,boolean haveTypes) {
     this.worksheetContext = worksheetContext;
     this.dmnConversionContext = new DmnConversionContext(worksheetContext);
     this.ioDetectionStrategy = ioDetectionStrategy;
-
+    this.haveTypes = haveTypes;
     // order is important
     this.dmnConversionContext.addCellContentHandler(new FeelSimpleUnaryTestConverter());
     this.dmnConversionContext.addCellContentHandler(new DmnValueStringConverter());
@@ -66,28 +66,41 @@ public class XlsxWorksheetConverter {
 
     List<IndexedRow> rows = worksheetContext.getRows();
 
-    convertInputsOutputs(dmnModel, decisionTable, rows.get(0),rows.get(1),rows.get(2));
-    convertRules(dmnModel, decisionTable, rows.subList(3, rows.size()));
-
+    int row =0;
+    if(haveTypes && rows.size() >= 3){
+        convertInputsOutputs(dmnModel, decisionTable, rows.get(1),rows.get(0),rows.get(2));       
+        row = 3;
+    }else{
+        convertInputsOutputs(dmnModel, decisionTable, rows.get(0),null,null);
+        row=1;
+    }
+    convertRules(dmnModel, decisionTable, rows.subList(row, rows.size()));
+    
     return dmnModel;
   }
 
-  protected void convertInputsOutputs(DmnModelInstance dmnModel, DecisionTable decisionTable, IndexedRow label, IndexedRow header, IndexedRow typeRef) {
+  protected void convertInputsOutputs(DmnModelInstance dmnModel, DecisionTable decisionTable, IndexedRow header,IndexedRow label, IndexedRow typeRef) {
 
     InputOutputColumns inputOutputColumns = ioDetectionStrategy.determineHeaderCells(header, worksheetContext);
-    List<IndexedCell> labels = label.getCells();
-    List<IndexedCell> typeRefs = typeRef.getCells();
+    
+    
+    List<IndexedCell> labels = (label==null)?null:label.getCells();    
+    List<IndexedCell> typeRefs = (typeRef==null)?null:typeRef.getCells();
     int index =0;
     
     
     // inputs
     for (IndexedCell inputCell : inputOutputColumns.getInputHeaderCells()) {
       Input input = generateElement(dmnModel, Input.class, worksheetContext.resolveCellValue(inputCell.getCell()));
-      input.setLabel(worksheetContext.resolveCellValue(labels.get(index).getCell()));
+      if(labels != null){
+          input.setLabel(worksheetContext.resolveCellValue(labels.get(index).getCell()));
+      }      
       decisionTable.addChildElement(input);
 
       InputExpression inputExpression = generateElement(dmnModel, InputExpression.class);
-      inputExpression.setTypeRef(worksheetContext.resolveCellValue(typeRefs.get(index).getCell()));
+      if(typeRefs != null){
+          inputExpression.setTypeRef(worksheetContext.resolveCellValue(typeRefs.get(index).getCell()));
+      }      
       Text text = generateText(dmnModel, worksheetContext.resolveCellValue(inputCell.getCell()));
       inputExpression.setText(text);
       input.setInputExpression(inputExpression);
@@ -99,13 +112,16 @@ public class XlsxWorksheetConverter {
     // outputs
     for (IndexedCell outputCell : inputOutputColumns.getOutputHeaderCells()) {
       Output output = generateElement(dmnModel, Output.class, worksheetContext.resolveCellValue(outputCell.getCell()));
-      output.setLabel(worksheetContext.resolveCellValue(labels.get(index).getCell()));
+      if(labels != null){
+          output.setLabel(worksheetContext.resolveCellValue(labels.get(index).getCell()));
+      }      
       output.setName(worksheetContext.resolveCellValue(outputCell.getCell()));
       decisionTable.addChildElement(output);
       
     
-
-      output.setTypeRef(worksheetContext.resolveCellValue(typeRefs.get(index).getCell()));
+    if(typeRefs != null){
+         output.setTypeRef(worksheetContext.resolveCellValue(typeRefs.get(index).getCell()));
+    }     
       dmnConversionContext.getIndexedDmnColumns().addOutput(outputCell, output);
       index++;
     }
